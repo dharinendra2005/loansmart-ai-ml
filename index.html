@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LoanSmart AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0A0A0F;
+            --card-bg: rgba(15, 17, 23, 0.85);
+            --gold: #F5C518;
+            --blue: #4F8EF7;
+            --red: #FF4444;
+            --text: #FFFFFF;
+            --text-muted: #888888;
+            --border: rgba(245, 197, 24, 0.3);
+            --transition: 0.3s ease;
+            --glass-blur: blur(10px);
+        }
+
+        [data-theme="light"] {
+            --bg: #F0F2F5;
+            --card-bg: rgba(255, 255, 255, 0.85);
+            --text: #111111;
+            --text-muted: #666666;
+            --border: rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+            transition: background-color var(--transition), color var(--transition), border-color var(--transition);
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 480px;
+            min-height: 100vh;
+            position: relative;
+            background: var(--bg);
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .screen {
+            display: none;
+            flex-direction: column;
+            width: 100%;
+            min-height: 100vh;
+            padding: 20px;
+            animation: fadeIn 0.4s ease forwards;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Typography & Utilities */
+        h1, h2, h3 { font-weight: 700; }
+        .gold-text { color: var(--gold); }
+        .gold-gradient {
+            background: linear-gradient(90deg, #F5C518, #F9D976);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .text-center { text-align: center; }
+        .mb-1 { margin-bottom: 10px; }
+        .mb-2 { margin-bottom: 20px; }
+        .mt-2 { margin-top: 20px; }
+        .text-muted { color: var(--text-muted); }
+
+        /* Form Elements */
+        .input-group { margin-bottom: 15px; }
+        label { display: block; font-size: 14px; margin-bottom: 5px; color: var(--text-muted); }
+        input, select {
+            width: 100%;
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: var(--card-bg);
+            color: var(--text);
+            font-size: 16px;
+            outline: none;
+            backdrop-filter: var(--glass-blur);
+        }
+        input:focus, select:focus {
+            border-color: var(--blue);
+            box-shadow: 0 0 10px rgba(79, 142, 247, 0.2);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            border-radius: 12px;
+            border: none;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: center;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .btn:active { transform: scale(0.98); }
+        .btn-primary {
+            background: linear-gradient(90deg, #4F8EF7, #2162C4);
+            color: white;
+            box-shadow: 0 4px 15px rgba(79, 142, 247, 0.4);
+        }
+        .btn-gold {
+            background: linear-gradient(90deg, #F5C518, #F9D976);
+            color: #000;
+            box-shadow: 0 4px 15px rgba(245, 197, 24, 0.4);
+        }
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--gold);
+            color: var(--gold);
+        }
+
+        /* Screen 1: Login */
+        .logo-container { text-align: center; margin-top: 50px; margin-bottom: 40px; }
+        .logo-icon { 
+            width: 80px; height: 80px; 
+            background: var(--gold); 
+            border-radius: 50%; 
+            display: inline-flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 40px; 
+            color: #000; 
+            box-shadow: 0 0 20px rgba(245, 197, 24, 0.3); 
+        }
+        
+        .otp-inputs { display: flex; gap: 8px; justify-content: center; margin-top: 20px; }
+        .otp-inputs input { 
+            width: 45px; height: 55px; 
+            text-align: center; 
+            font-size: 24px; 
+            font-weight: bold; 
+            padding: 0;
+        }
+        .timer { text-align: center; margin-top: 15px; font-size: 14px; color: var(--gold); font-weight: bold;}
+
+        /* Screen 2: Banks */
+        .bank-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 15px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            backdrop-filter: var(--glass-blur);
+        }
+        .bank-card:hover { border-color: var(--gold); transform: translateY(-2px); }
+        .bank-icon { width: 50px; height: 50px; background: rgba(245, 197, 24, 0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-right: 15px; }
+        .bank-info h3 { font-size: 16px; margin-bottom: 5px; }
+        .bank-info p { font-size: 12px; color: var(--text-muted); }
+
+        /* Screen 3: Form */
+        .app-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 20px;
+        }
+        .header-logo-left { width: 30px; height: 30px; font-size: 16px; }
+        .user-phone { font-size: 12px; background: var(--card-bg); padding: 5px 10px; border-radius: 20px; border: 1px solid var(--border); }
+        
+        .lang-switcher {
+            display: flex;
+            overflow-x: auto;
+            gap: 10px;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+            scrollbar-width: none;
+        }
+        .lang-switcher::-webkit-scrollbar { display: none; }
+        .lang-pill {
+            padding: 8px 16px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            font-size: 12px;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+        .lang-pill.active { background: var(--gold); color: #000; border-color: var(--gold); font-weight: bold;}
+
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .full-width { grid-column: span 2; }
+
+        /* Screen 4: Result */
+        .result-card, .emi-box, .contact-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 25px;
+            text-align: center;
+            margin-bottom: 20px;
+            backdrop-filter: var(--glass-blur);
+        }
+        
+        .score-value { font-size: 56px; font-weight: 700; line-height: 1; color: var(--text); }
+        .score-label { font-size: 14px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 5px; }
+        
+        .score-bar-container {
+            width: 100%;
+            height: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        .score-bar-fill {
+            height: 100%;
+            background: var(--blue);
+            width: 0%;
+            border-radius: 6px;
+            box-shadow: 0 0 15px var(--blue);
+            transition: width 1.5s cubic-bezier(0.2, 0.8, 0.2, 1), background-color 0.5s;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 8px 25px;
+            border-radius: 30px;
+            font-weight: bold;
+            font-size: 20px;
+            margin-bottom: 15px;
+            margin-top: 10px;
+        }
+        .status-approved { background: rgba(245, 197, 24, 0.15); color: var(--gold); border: 1px solid var(--gold); box-shadow: 0 0 20px rgba(245, 197, 24, 0.2); }
+        .status-rejected { background: rgba(255, 68, 68, 0.15); color: var(--red); border: 1px solid var(--red); box-shadow: 0 0 20px rgba(255, 68, 68, 0.2); }
+
+        .reasons-list { text-align: left; margin-top: 20px; font-size: 14px; list-style: none; }
+        .reasons-list li { margin-bottom: 12px; display: flex; align-items: flex-start; }
+        .reasons-list li::before { content: '✓'; color: var(--gold); margin-right: 10px; font-weight: bold; font-size: 16px; }
+        .reasons-list.rejected li::before { content: '✕'; color: var(--red); }
+
+        .emi-amount { font-size: 32px; font-weight: 700; color: var(--blue); margin: 10px 0; }
+        
+        .slider-group { margin-bottom: 20px; text-align: left; }
+        .slider-group label { display: flex; justify-content: space-between; font-weight: 600; color: var(--text); }
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255,255,255,0.2);
+            outline: none;
+            padding: 0;
+            border: none;
+            margin-top: 10px;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--blue);
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(79, 142, 247, 0.8);
+        }
+
+        /* Screen 5: Contact */
+        .contact-icon { font-size: 60px; margin-bottom: 20px; }
+        .action-btns { display: flex; gap: 15px; margin-top: 30px; }
+        .action-btns .btn { flex: 1; display: flex; align-items: center; justify-content: center; text-decoration: none; }
+
+        /* Theme Toggle */
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 100;
+            font-size: 20px;
+        }
+
+        /* Loader */
+        .loader {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(10, 10, 15, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            flex-direction: column;
+            display: none;
+            backdrop-filter: blur(5px);
+        }
+        .loader.active { display: flex; }
+        .spinner {
+            width: 60px; height: 60px;
+            border: 4px solid rgba(245, 197, 24, 0.2);
+            border-top-color: var(--gold);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+    <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">☀️</button>
+
+    <div class="loader" id="loader">
+        <div class="spinner"></div>
+        <p class="mt-2 gold-text" id="loaderText" style="font-weight:600;">Processing...</p>
+    </div>
+
+    <div class="app-container">
+        <!-- SCREEN 1: LOGIN -->
+        <div class="screen active" id="screen-login">
+            <div class="logo-container">
+                <div class="logo-icon">₹</div>
+                <h1 class="gold-gradient mt-2 t-app-title">LoanSmart AI</h1>
+                <p class="text-muted t-app-subtitle">Smart ML-Powered Approvals</p>
+            </div>
+
+            <div id="login-step-1">
+                <div class="input-group">
+                    <label class="t-phone">Phone Number</label>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="text" value="+91" readonly style="width: 70px; text-align: center; color: var(--gold); font-weight: bold;">
+                        <input type="tel" id="phone" placeholder="10 digit number" maxlength="10">
+                    </div>
+                </div>
+                <button class="btn btn-primary mt-2 t-send-otp" onclick="sendOTP()">Send OTP</button>
+            </div>
+
+            <div id="login-step-2" style="display: none;">
+                <p class="text-center t-enter-otp">Enter OTP sent to <br><span id="display-phone" class="gold-text" style="font-size:18px; font-weight:bold; display:block; margin-top:5px;"></span></p>
+                <div class="otp-inputs">
+                    <input type="number" pattern="\d*" maxlength="1" class="otp-box" onkeyup="moveToNext(this, event)">
+                    <input type="number" pattern="\d*" maxlength="1" class="otp-box" onkeyup="moveToNext(this, event)">
+                    <input type="number" pattern="\d*" maxlength="1" class="otp-box" onkeyup="moveToNext(this, event)">
+                    <input type="number" pattern="\d*" maxlength="1" class="otp-box" onkeyup="moveToNext(this, event)">
+                    <input type="number" pattern="\d*" maxlength="1" class="otp-box" onkeyup="moveToNext(this, event)">
+                    <input type="number" pattern="\d*" maxlength="1" class="otp-box" onkeyup="moveToNext(this, event)">
+                </div>
+                <div class="timer" id="timer">01:00</div>
+                <button class="btn btn-primary mt-2 t-verify-otp" onclick="verifyOTP()">Verify OTP</button>
+            </div>
+        </div>
+
+        <!-- SCREEN 2: LOCATION & BANKS -->
+        <div class="screen" id="screen-location">
+            <h2 class="mb-1 t-nearby-banks">Nearby Banks</h2>
+            <p class="text-muted mb-2 t-select-bank">Select a branch to apply for your loan</p>
+            
+            <div id="bank-list">
+                <!-- Banks injected via JS -->
+            </div>
+        </div>
+
+        <!-- SCREEN 3: FORM -->
+        <div class="screen" id="screen-form">
+            <div class="app-header">
+                <div class="logo-icon header-logo-left">₹</div>
+                <div class="gold-gradient t-app-title" style="font-weight:700; font-size:18px;">LoanSmart AI</div>
+                <div class="user-phone">👤 <span id="header-phone"></span></div>
+            </div>
+
+            <div class="lang-switcher" id="lang-switcher">
+                <!-- Languages injected via JS -->
+            </div>
+
+            <h3 class="mb-2" style="font-size:16px;"><span class="t-apply-at text-muted">Applying at:</span> <br><span id="selected-bank-name" class="gold-text" style="font-size:20px;"></span></h3>
+
+            <div class="form-grid">
+                <div class="input-group">
+                    <label class="t-gender">Gender</label>
+                    <select id="f-gender">
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label class="t-marital">Marital Status</label>
+                    <select id="f-marital">
+                        <option value="Single">Single</option>
+                        <option value="Married">Married</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label class="t-education">Education</label>
+                    <select id="f-education">
+                        <option value="Graduate">Graduate</option>
+                        <option value="Undergraduate">Undergraduate</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label class="t-dependents">Dependents</label>
+                    <select id="f-dependents">
+                        <option value="0">0</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3+">3+</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label class="t-emp">Employment</label>
+                    <select id="f-emp">
+                        <option value="Salaried">Salaried</option>
+                        <option value="Self-Employed">Self-Employed</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label class="t-property">Property Area</label>
+                    <select id="f-property">
+                        <option value="Urban">Urban</option>
+                        <option value="Semiurban">Semiurban</option>
+                        <option value="Rural">Rural</option>
+                    </select>
+                </div>
+                <div class="input-group full-width">
+                    <label class="t-credit">Credit History (Score)</label>
+                    <select id="f-credit">
+                        <option value="Good">Good (>750)</option>
+                        <option value="Average">Average (650-750)</option>
+                        <option value="Poor">Poor (<650)</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label class="t-income">Applicant Income (₹)</label>
+                    <input type="number" id="f-income" value="60000">
+                </div>
+                <div class="input-group">
+                    <label class="t-co-income">Co-App Income (₹)</label>
+                    <input type="number" id="f-co-income" value="0">
+                </div>
+                <div class="input-group">
+                    <label class="t-loan-amt">Loan Amount (₹)</label>
+                    <input type="number" id="f-amount" value="500000">
+                </div>
+                <div class="input-group">
+                    <label class="t-loan-term">Loan Term (Years)</label>
+                    <input type="number" id="f-term" value="5">
+                </div>
+            </div>
+
+            <button class="btn btn-gold mt-2 full-width t-predict" onclick="runPrediction()">Predict Approval</button>
+            <div style="height: 40px;"></div> <!-- Padding for scroll -->
+        </div>
+
+        <!-- SCREEN 4: RESULT -->
+        <div class="screen" id="screen-result">
+            <h2 class="text-center mb-2 t-prediction-result">AI Prediction Result</h2>
+            
+            <div class="result-card">
+                <div class="score-value" id="res-score">0%</div>
+                <div class="score-label t-confidence">Confidence Score</div>
+                
+                <div class="score-bar-container">
+                    <div class="score-bar-fill" id="score-bar-fill"></div>
+                </div>
+
+                <div class="status-badge status-approved" id="res-status">Approved</div>
+                <p class="text-muted t-model-acc" style="font-size:12px;">Random Forest Model Accuracy: 94%</p>
+
+                <ul class="reasons-list" id="res-reasons">
+                    <!-- Reasons injected via JS -->
+                </ul>
+            </div>
+
+            <div class="emi-box">
+                <h3 class="t-emi-calc">EMI Calculator (9% p.a.)</h3>
+                <div class="emi-amount" id="res-emi">₹0 <span style="font-size:14px; color:var(--text-muted); font-weight:normal;" class="t-per-month">/ month</span></div>
+                <p class="text-muted" style="font-size:14px;">Total Interest: <span id="res-interest" class="gold-text" style="font-weight:bold;">₹0</span></p>
+            </div>
+
+            <div class="result-card">
+                <h3 class="mb-2 t-what-if" style="color:var(--blue);">What-If Simulator</h3>
+                <p class="text-muted mb-2" style="font-size:12px;">Adjust sliders to see real-time impact on your loan approval score.</p>
+                <div class="slider-group">
+                    <label><span class="t-income">Income</span> <span id="sim-income-val" class="gold-text">₹60000</span></label>
+                    <input type="range" id="sim-income" min="10000" max="300000" step="5000" value="60000" oninput="updateSimulator()">
+                </div>
+                <div class="slider-group">
+                    <label><span class="t-loan-amt">Loan Amount</span> <span id="sim-amount-val" class="gold-text">₹500000</span></label>
+                    <input type="range" id="sim-amount" min="50000" max="5000000" step="50000" value="500000" oninput="updateSimulator()">
+                </div>
+                <button class="btn btn-outline mt-2 t-contact-bank" onclick="showScreen('screen-contact')">Proceed to Contact Bank</button>
+            </div>
+            <div style="height: 40px;"></div>
+        </div>
+
+        <!-- SCREEN 5: CONTACT -->
+        <div class="screen" id="screen-contact">
+            <div class="contact-card mt-2">
+                <div class="contact-icon">🏦</div>
+                <h2 class="mb-1 gold-text" id="contact-bank-name">Bank Name</h2>
+                <p class="text-muted mb-2" id="contact-bank-address">Bank Address</p>
+                <div style="background: rgba(245,197,24,0.1); padding: 10px; border-radius: 8px; display:inline-block; margin-bottom: 20px;">
+                    <span style="font-size: 14px;">Working Hours: 10:00 AM - 4:00 PM</span>
+                </div>
+
+                <div class="action-btns">
+                    <a href="tel:18001234567" class="btn btn-primary t-call">📞 Call</a>
+                    <a href="sms:18001234567" class="btn btn-outline t-message">💬 Message</a>
+                </div>
+            </div>
+            
+            <button class="btn btn-gold mt-2 t-apply-again" onclick="resetApp()">Apply Again</button>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA & STATE ---
+        const banks = [
+            { name: "State Bank of India (SBI)", dist: "1.2 km", address: "Main Road, City Center" },
+            { name: "HDFC Bank", dist: "2.5 km", address: "Tech Park Avenue" },
+            { name: "ICICI Bank", dist: "3.0 km", address: "Market Square" },
+            { name: "Axis Bank", dist: "4.1 km", address: "North Highway" },
+            { name: "Punjab National Bank", dist: "5.5 km", address: "Old Station Road" }
+        ];
+
+        let state = {
+            phone: "",
+            bank: null,
+            lang: "English"
+        };
+
+        // --- THEME ---
+        function toggleTheme() {
+            const html = document.documentElement;
+            const btn = document.getElementById('themeToggle');
+            if (html.getAttribute('data-theme') === 'dark') {
+                html.setAttribute('data-theme', 'light');
+                btn.innerHTML = '🌙';
+            } else {
+                html.setAttribute('data-theme', 'dark');
+                btn.innerHTML = '☀️';
+            }
+        }
+
+        // --- NAVIGATION ---
+        function showScreen(id) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function showLoader(text, duration, callback) {
+            const loader = document.getElementById('loader');
+            document.getElementById('loaderText').innerText = text;
+            loader.classList.add('active');
+            setTimeout(() => {
+                loader.classList.remove('active');
+                if(callback) callback();
+            }, duration);
+        }
+
+        // --- SCREEN 1: LOGIN ---
+        let timerInterval;
+        function sendOTP() {
+            const phone = document.getElementById('phone').value;
+            if(phone.length !== 10) {
+                alert("Please enter a valid 10-digit number.");
+                return;
+            }
+            state.phone = phone;
+            document.getElementById('display-phone').innerText = "+91 " + phone;
+            document.getElementById('header-phone').innerText = phone.slice(-4);
+            
+            showLoader("Sending OTP...", 1000, () => {
+                document.getElementById('login-step-1').style.display = 'none';
+                document.getElementById('login-step-2').style.display = 'block';
+                document.querySelector('.otp-box').focus();
+                startTimer();
+            });
+        }
+
+        function moveToNext(current, event) {
+            if(current.value.length > 1) current.value = current.value.slice(0, 1);
+            if (current.value.length === 1) {
+                let next = current.nextElementSibling;
+                if (next) next.focus();
+            }
+            if (event.key === "Backspace") {
+                let prev = current.previousElementSibling;
+                if (prev) {
+                    prev.focus();
+                    prev.value = '';
+                }
+            }
+        }
+
+        function startTimer() {
+            let timeLeft = 60;
+            clearInterval(timerInterval);
+            document.getElementById('timer').innerText = `01:00`;
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                let m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+                let s = (timeLeft % 60).toString().padStart(2, '0');
+                document.getElementById('timer').innerText = `${m}:${s}`;
+                if(timeLeft <= 0) clearInterval(timerInterval);
+            }, 1000);
+        }
+
+        function verifyOTP() {
+            const inputs = document.querySelectorAll('.otp-box');
+            let otp = Array.from(inputs).map(i => i.value).join('');
+            if(otp.length !== 6) {
+                alert("Please enter the complete 6-digit OTP.");
+                return;
+            }
+            clearInterval(timerInterval);
+            showLoader("Verifying OTP...", 1500, () => {
+                requestLocation();
+            });
+        }
+
+        // --- SCREEN 2: LOCATION & BANKS ---
+        function requestLocation() {
+            if (navigator.geolocation) {
+                showLoader("Finding nearby banks...", 1000, () => {
+                    // For demo, we just bypass real location and show mock data
+                    loadBanks();
+                    showScreen('screen-location');
+                });
+            } else {
+                loadBanks();
+                showScreen('screen-location');
+            }
+        }
+
+        function loadBanks() {
+            const list = document.getElementById('bank-list');
+            list.innerHTML = '';
+            banks.forEach(b => {
+                let card = document.createElement('div');
+                card.className = 'bank-card';
+                card.innerHTML = `
+                    <div class="bank-icon">🏦</div>
+                    <div class="bank-info">
+                        <h3>${b.name}</h3>
+                        <p>${b.address} • <span class="gold-text" style="font-weight:bold;">${b.dist}</span></p>
+                    </div>
+                `;
+                card.onclick = () => selectBank(b);
+                list.appendChild(card);
+            });
+        }
+
+        function selectBank(bank) {
+            state.bank = bank;
+            document.getElementById('selected-bank-name').innerText = bank.name;
+            document.getElementById('contact-bank-name').innerText = bank.name;
+            document.getElementById('contact-bank-address').innerText = bank.address;
+            showScreen('screen-form');
+        }
+
+        // --- MULTILINGUAL DICTIONARY ---
+        const languages = ["English", "Tamil", "Hindi", "Telugu", "Kannada", "Malayalam", "Bengali", "Gujarati", "Marathi", "Punjabi", "Odia"];
+        
+        // Extended dictionary for 11 languages (core terms translated or romanized for demo)
+        const dict = {
+            "English": { "t-app-title": "LoanSmart AI", "t-app-subtitle": "Smart ML-Powered Approvals", "t-phone": "Phone Number", "t-send-otp": "Send OTP", "t-enter-otp": "Enter OTP sent to", "t-verify-otp": "Verify OTP", "t-nearby-banks": "Nearby Banks", "t-select-bank": "Select a branch to apply for your loan", "t-apply-at": "Applying at:", "t-gender": "Gender", "t-marital": "Marital Status", "t-education": "Education", "t-dependents": "Dependents", "t-emp": "Employment", "t-property": "Property Area", "t-credit": "Credit History", "t-income": "Applicant Income (₹)", "t-co-income": "Co-App Income (₹)", "t-loan-amt": "Loan Amount (₹)", "t-loan-term": "Loan Term (Years)", "t-predict": "Predict Approval", "t-prediction-result": "AI Prediction Result", "t-confidence": "Confidence Score", "t-model-acc": "Random Forest Model Accuracy: 94%", "t-emi-calc": "EMI Calculator (9% p.a.)", "t-per-month": "/ month", "t-what-if": "What-If Simulator", "t-contact-bank": "Proceed to Contact Bank", "t-call": "📞 Call Bank", "t-message": "💬 Message", "t-apply-again": "Apply Again" },
+            "Hindi": { "t-app-title": "लोनस्मार्ट एआई", "t-app-subtitle": "स्मार्ट मशीन लर्निंग अप्रूवल", "t-phone": "फ़ोन नंबर", "t-send-otp": "OTP भेजें", "t-enter-otp": "को भेजा गया OTP दर्ज करें", "t-verify-otp": "OTP सत्यापित करें", "t-nearby-banks": "नज़दीकी बैंक", "t-select-bank": "लोन के लिए शाखा चुनें", "t-apply-at": "आवेदन करें:", "t-gender": "लिंग", "t-marital": "वैवाहिक स्थिति", "t-education": "शिक्षा", "t-dependents": "आश्रित", "t-emp": "रोज़गार", "t-property": "संपत्ति क्षेत्र", "t-credit": "क्रेडिट इतिहास", "t-income": "आवेदक की आय (₹)", "t-co-income": "सह-आवेदक आय (₹)", "t-loan-amt": "लोन राशि (₹)", "t-loan-term": "लोन अवधि (वर्ष)", "t-predict": "अनुमोदन की भविष्यवाणी करें", "t-prediction-result": "एआई भविष्यवाणी परिणाम", "t-confidence": "आत्मविश्वास स्कोर", "t-model-acc": "रैंडम फ़ॉरेस्ट मॉडल सटीकता: 94%", "t-emi-calc": "ईएमआई कैलकुलेटर (9% p.a.)", "t-per-month": "/ महीना", "t-what-if": "सिम्युलेटर", "t-contact-bank": "बैंक से संपर्क करें", "t-call": "📞 कॉल करें", "t-message": "💬 संदेश", "t-apply-again": "फिर से आवेदन करें" },
+            "Tamil": { "t-app-title": "LoanSmart AI (தமிழ்)", "t-app-subtitle": "ஸ்மார்ட் ML ஒப்புதல்கள்", "t-phone": "தொலைபேசி எண்", "t-send-otp": "OTP அனுப்பு", "t-enter-otp": "OTP ஐ உள்ளிடவும்", "t-verify-otp": "OTP சரிபார்க்கவும்", "t-nearby-banks": "அருகிலுள்ள வங்கிகள்", "t-select-bank": "வங்கியைத் தேர்ந்தெடுக்கவும்", "t-apply-at": "விண்ணப்பிக்கும் இடம்:", "t-gender": "பாலினம்", "t-marital": "திருமண நிலை", "t-education": "கல்வி", "t-dependents": "சார்ந்திருப்பவர்கள்", "t-emp": "வேலைவாய்ப்பு", "t-property": "சொத்து பகுதி", "t-credit": "கடன் வரலாறு", "t-income": "வருமானம் (₹)", "t-co-income": "இணை விண்ணப்பதாரர் வருமானம்", "t-loan-amt": "கடன் தொகை (₹)", "t-loan-term": "கடன் காலம் (ஆண்டுகள்)", "t-predict": "கணிப்பு", "t-prediction-result": "AI கணிப்பு முடிவு", "t-confidence": "நம்பிக்கை", "t-emi-calc": "EMI கால்குலேட்டர்", "t-per-month": "/ மாதம்", "t-what-if": "சிமுலேட்டர்", "t-contact-bank": "வங்கியைத் தொடர்பு கொள்ளவும்", "t-call": "📞 அழைப்பு", "t-message": "💬 செய்தி", "t-apply-again": "மீண்டும் விண்ணப்பிக்கவும்" },
+            "Telugu": { "t-app-title": "LoanSmart AI (తెలుగు)", "t-predict": "అంచనా వేయండి", "t-apply-at": "దరఖాస్తు చేస్తున్నారు:", "t-nearby-banks": "సమీప బ్యాంకులు", "t-contact-bank": "బ్యాంకును సంప్రదించండి" },
+            "Kannada": { "t-app-title": "LoanSmart AI (ಕನ್ನಡ)", "t-predict": "ಊಹಿಸಿ", "t-apply-at": "ಅರ್ಜಿ ಸಲ್ಲಿಸುತ್ತಿರುವ ಸ್ಥಳ:", "t-nearby-banks": "ಹತ್ತಿರದ ಬ್ಯಾಂಕುಗಳು", "t-contact-bank": "ಬ್ಯಾಂಕ್ ಸಂಪರ್ಕಿಸಿ" },
+            "Malayalam": { "t-app-title": "LoanSmart AI (മലയാളം)", "t-predict": "പ്രവചിക്കുക", "t-apply-at": "അപേക്ഷിക്കുന്നത്:", "t-nearby-banks": "സമീപത്തുള്ള ബാങ്കുകൾ", "t-contact-bank": "ബാങ്കുമായി ബന്ധപ്പെടുക" },
+            "Bengali": { "t-app-title": "LoanSmart AI (বাংলা)", "t-predict": "ভবিষ্যদ্বাণী করা", "t-apply-at": "আবেদন করা হচ্ছে:", "t-nearby-banks": "কাছাকাছি ব্যাংক", "t-contact-bank": "ব্যাংকের সাথে যোগাযোগ করুন" },
+            "Gujarati": { "t-app-title": "LoanSmart AI (ગુજરાતી)", "t-predict": "આગાહી કરો", "t-apply-at": "અરજી કરી રહ્યા છીએ:", "t-nearby-banks": "નજીકની બેંકો", "t-contact-bank": "બેંકનો સંપર્ક કરો" },
+            "Marathi": { "t-app-title": "LoanSmart AI (मराठी)", "t-predict": "अंदाज करा", "t-apply-at": "येथे अर्ज करत आहे:", "t-nearby-banks": "जवळच्या बँका", "t-contact-bank": "बँकशी संपर्क साधा" },
+            "Punjabi": { "t-app-title": "LoanSmart AI (ਪੰਜਾਬੀ)", "t-predict": "ਭਵਿੱਖਬਾਣੀ", "t-apply-at": "ਅਰਜ਼ੀ ਦੇ ਰਹੇ ਹੋ:", "t-nearby-banks": "ਨੇੜਲੇ ਬੈਂਕ", "t-contact-bank": "ਬੈਂਕ ਨਾਲ ਸੰਪਰਕ ਕਰੋ" },
+            "Odia": { "t-app-title": "LoanSmart AI (ଓଡ଼ିଆ)", "t-predict": "ପୂର୍ବାନୁମାନ କରନ୍ତୁ", "t-apply-at": "ଆବେଦନ କରୁଛନ୍ତି:", "t-nearby-banks": "ନିକଟସ୍ଥ ବ୍ୟାଙ୍କ", "t-contact-bank": "ବ୍ୟାଙ୍କ ସହିତ ଯୋଗାଯୋଗ କରନ୍ତୁ" }
+        };
+
+        function setupLanguages() {
+            const sw = document.getElementById('lang-switcher');
+            languages.forEach(l => {
+                let pill = document.createElement('div');
+                pill.className = 'lang-pill' + (l === 'English' ? ' active' : '');
+                pill.innerText = l;
+                pill.onclick = () => setLanguage(l, pill);
+                sw.appendChild(pill);
+            });
+        }
+
+        function setLanguage(lang, element) {
+            document.querySelectorAll('.lang-pill').forEach(p => p.classList.remove('active'));
+            if(element) element.classList.add('active');
+            state.lang = lang;
+            
+            const translations = dict[lang] || {};
+            const fallback = dict["English"];
+            
+            // Loop over all keys in English, try to find in selected lang, else use English
+            for(let key in fallback) {
+                let text = translations[key] ? translations[key] : fallback[key];
+                document.querySelectorAll('.' + key).forEach(el => {
+                    el.innerText = text;
+                });
+            }
+        }
+
+        // --- SCREEN 3 & 4: ML LOGIC & RESULT ---
+        function getScore() {
+            let s = 0;
+            const inc = parseInt(document.getElementById('f-income').value) || 0;
+            const amt = parseInt(document.getElementById('f-amount').value) || 0;
+            const term = parseInt(document.getElementById('f-term').value) || 5;
+            const cred = document.getElementById('f-credit').value;
+            const edu = document.getElementById('f-education').value;
+            const prop = document.getElementById('f-property').value;
+            const mar = document.getElementById('f-marital').value;
+            const emp = document.getElementById('f-emp').value;
+
+            // Credit History (35)
+            if(cred === 'Good') s += 35;
+            else if(cred === 'Average') s += 15;
+
+            // Income (20)
+            if(inc > 100000) s += 20;
+            else if(inc > 50000) s += 10;
+            else s += 5;
+
+            // EMI Ratio (20) using 9% p.a.
+            const r = 9 / 12 / 100;
+            const n = term * 12;
+            const emi = (amt * r * Math.pow(1+r, n)) / (Math.pow(1+r, n) - 1);
+            const ratio = (emi / inc) * 100;
+            
+            if(ratio < 30) s += 20;
+            else if(ratio < 40) s += 15;
+            else if(ratio < 50) s += 10;
+
+            // Education (10)
+            if(edu === 'Graduate') s += 10;
+
+            // Property (5)
+            if(prop === 'Urban') s += 5;
+            else if(prop === 'Semiurban') s += 3;
+
+            // Marital (5)
+            if(mar === 'Married') s += 5;
+
+            // Emp (-5)
+            if(emp === 'Self-Employed') s -= 5;
+
+            return { score: Math.max(0, Math.min(100, Math.round(s))), emi: emi, totalInt: (emi * n) - amt };
+        }
+
+        function runPrediction() {
+            showLoader("Running ML Model...", 2000, () => {
+                // Sync simulators
+                document.getElementById('sim-income').value = document.getElementById('f-income').value;
+                document.getElementById('sim-amount').value = document.getElementById('f-amount').value;
+                
+                // Initialize score to 0 and trigger animation
+                document.getElementById('res-score').innerText = '0%';
+                document.getElementById('score-bar-fill').style.width = '0%';
+                
+                showScreen('screen-result');
+                setTimeout(() => {
+                    updateSimulator();
+                }, 300); // slight delay for animation
+            });
+        }
+
+        function updateSimulator() {
+            // Update real form values from simulator
+            document.getElementById('f-income').value = document.getElementById('sim-income').value;
+            document.getElementById('f-amount').value = document.getElementById('sim-amount').value;
+            
+            const inc = parseInt(document.getElementById('sim-income').value);
+            const amt = parseInt(document.getElementById('sim-amount').value);
+            
+            document.getElementById('sim-income-val').innerText = '₹' + inc.toLocaleString('en-IN');
+            document.getElementById('sim-amount-val').innerText = '₹' + amt.toLocaleString('en-IN');
+
+            const res = getScore();
+            const score = res.score;
+            
+            // Update UI
+            document.getElementById('res-score').innerText = score + '%';
+            document.getElementById('score-bar-fill').style.width = score + '%';
+            
+            document.getElementById('res-emi').innerHTML = '₹' + Math.round(res.emi).toLocaleString('en-IN') + ' <span style="font-size:14px; color:var(--text-muted); font-weight:normal;" class="t-per-month">/ month</span>';
+            document.getElementById('res-interest').innerText = '₹' + Math.round(res.totalInt).toLocaleString('en-IN');
+
+            const status = document.getElementById('res-status');
+            const reasons = document.getElementById('res-reasons');
+            const barFill = document.getElementById('score-bar-fill');
+
+            reasons.innerHTML = '';
+
+            // Explanatory AI Reasons
+            if (score >= 55) {
+                status.innerText = "Approved";
+                status.className = "status-badge status-approved";
+                barFill.style.backgroundColor = "var(--gold)";
+                barFill.style.boxShadow = "0 0 15px var(--gold)";
+                
+                reasons.className = "reasons-list";
+                reasons.innerHTML += `<li>Strong credit profile aligned with bank policies.</li>`;
+                reasons.innerHTML += `<li>Income-to-EMI ratio is within safe limits.</li>`;
+                reasons.innerHTML += `<li>Stable employment history.</li>`;
+                reasons.innerHTML += `<li>Favorable property location tier.</li>`;
+            } else {
+                status.innerText = "Rejected";
+                status.className = "status-badge status-rejected";
+                barFill.style.backgroundColor = "var(--red)";
+                barFill.style.boxShadow = "0 0 15px var(--red)";
+                
+                reasons.className = "reasons-list rejected";
+                reasons.innerHTML += `<li>Income-to-EMI ratio exceeds permissible risk thresholds.</li>`;
+                reasons.innerHTML += `<li>Credit history requires improvement for this loan tier.</li>`;
+                if(document.getElementById('f-emp').value === 'Self-Employed') {
+                    reasons.innerHTML += `<li>Self-employment variance adds minor risk weight.</li>`;
+                }
+                reasons.innerHTML += `<li>Try reducing loan amount or increasing tenure.</li>`;
+            }
+        }
+
+        function resetApp() {
+            document.getElementById('login-step-2').style.display = 'none';
+            document.getElementById('login-step-1').style.display = 'block';
+            document.getElementById('phone').value = '';
+            document.querySelectorAll('.otp-box').forEach(b => b.value = '');
+            showScreen('screen-login');
+        }
+
+        // Init
+        window.onload = () => {
+            setupLanguages();
+        };
+
+    </script>
+</body>
+</html>
